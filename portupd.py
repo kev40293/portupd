@@ -9,6 +9,7 @@ import ConfigParser;
 import signal;
 
 def handler(signum, frame):
+   os.remove('/var/run/portupd.pid')
    print 'Exiting'
    exit(0)
 
@@ -18,7 +19,7 @@ signal.signal(signal.SIGTERM, handler)
 
 parser = argparse.ArgumentParser(prog="portsyncd", description="A daemon for automatic background synchronization of the portage tree");
 parser.add_argument('--no-daemon', help="Don't fork process to background",
-      action='store_true', default=argparse.SUPPRESS);
+      action='store_const', const=True, default=argparse.SUPPRESS);
 parser.add_argument('--time', "-t", action='store', help="Time in hours \
       between syncs", type=float, default=argparse.SUPPRESS);
 parser.add_argument('--wait', '-w', action='store', help="Time to wait after\
@@ -28,7 +29,7 @@ parser.add_argument('--config', type=file, action='store',
       help="specify config file to use")
 
 default_opts = {'time': 24.0, 'wait': 5.0, \
-      'deep': True, 'pkglist': 'world', 'no_daemon': True}
+      'deep': True, 'pkglist': 'world', 'no_daemon': False}
 last_sync = 0;
 
 def main_loop(hours, wait_int):
@@ -56,7 +57,7 @@ def setEnv():
    fileOpts=ConfigParser.RawConfigParser();
    try:
       fileOpts.readfp(clargs.get('config'))
-      for each in default_opts:
+      for each in default_opts.keys():
          if fileOpts.has_option('portupd', each):
             environment[each] = fileOpts.get('portupd', each)
          if clargs.get(each) != None:
@@ -64,6 +65,7 @@ def setEnv():
 
    except IOError as e:
       print "Config file not found"
+      sys.exit()
 
    return environment
 
@@ -74,14 +76,18 @@ def portupd_main(args):
 
    env = setEnv();
 
-   #os.setpgid(0,0);
-   if (env.get('no_daemon') == False):
+   if (env.get('no_daemon') == 'False' or env.get('no_daemon') == False):
       print "forking to background"
       if (os.fork() == 0):
+          os.setpgid(0,0);
+          pidfile = open('/var/run/portupd.pid', 'w')
+          pidfile.write(os.getpid());
+          close(pidfile);
           fd = os.open("/dev/null", os.O_WRONLY);
           os.dup2(fd,1);
           os.close(fd);
-          main_loop(opts.get('time'));
+          main_loop(env.get('time'), env.get('wait'));
+
    else:
         print "Keeping in foreground"
         main_loop(env.get('time'), env.get('wait'));
