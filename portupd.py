@@ -8,15 +8,6 @@ import argparse;
 import ConfigParser;
 import signal;
 
-def handler(signum, frame):
-   os.remove('/var/run/portupd.pid')
-   print 'Exiting'
-   exit(0)
-
-signal.signal(signal.SIGINT, handler)
-signal.signal(signal.SIGTERM, handler)
-
-
 parser = argparse.ArgumentParser(prog="portsyncd", description="A daemon for automatic background synchronization of the portage tree");
 parser.add_argument('--no-daemon', help="Don't fork process to background",
       action='store_const', const=True, default=argparse.SUPPRESS);
@@ -27,9 +18,14 @@ parser.add_argument('--wait', '-w', action='store', help="Time to wait after\
 parser.add_argument('--config', type=file, action='store',
       default='/etc/portup.conf',
       help="specify config file to use")
+parser.add_argument("--pid-file", type=str, action='store',
+      help="Specify PID file", default=argparse.SUPPRESS)
 
-default_opts = {'time': 24.0, 'wait': 5.0, \
-      'deep': True, 'pkglist': 'world', 'no_daemon': False}
+bool_opts = ['deep','no_daemon']
+float_opts = ['time', 'wait']
+default_opts = {'time': 24.0, 'wait': 5.0,
+      'deep': True, 'pkglist': 'world', 'no_daemon': False,
+      'pid_file': '/var/run/portupd.pid'}
 last_sync = 0;
 
 def main_loop(hours, wait_int):
@@ -54,12 +50,17 @@ def main_loop(hours, wait_int):
 def setEnv():
    environment = default_opts
    clargs = vars(parser.parse_args())
-   fileOpts=ConfigParser.RawConfigParser();
+   fileOpts=ConfigParser.ConfigParser();
    try:
       fileOpts.readfp(clargs.get('config'))
       for each in default_opts.keys():
          if fileOpts.has_option('portupd', each):
-            environment[each] = fileOpts.get('portupd', each)
+            if (each in bool_opts):
+               environment[each] = fileOpts.getboolean('portupd', each)
+            elif (each in float_opts):
+               environment[each] = fileOpts.getfloat('portupd', each)
+            else:
+               environment[each] = fileOpts.get('portupd', each)
          if clargs.get(each) != None:
             environment[each] = clargs.get(each)
 
@@ -69,20 +70,28 @@ def setEnv():
 
    return environment
 
+env = setEnv()
+def handler(signum, frame):
+   os.remove(env.get('pid_file'))
+   print 'Exiting'
+   exit(0)
+
+signal.signal(signal.SIGINT, handler)
+signal.signal(signal.SIGTERM, handler)
+
 def portupd_main(args):
    if (os.geteuid() != 0):
       print "Must be run as root";
       sys.exit();
 
-   env = setEnv();
+   pidfile = open(env.get('pid_file'), 'w')
 
-   if (env.get('no_daemon') == 'False' or env.get('no_daemon') == False):
+   if (env.get('no_daemon') == False):
       print "forking to background"
       if (os.fork() == 0):
           os.setpgid(0,0);
-          pidfile = open('/var/run/portupd.pid', 'w')
-          pidfile.write(os.getpid());
-          close(pidfile);
+          pidfile.write(str(os.getpid()));
+          pidfile.close();
           fd = os.open("/dev/null", os.O_WRONLY);
           os.dup2(fd,1);
           os.close(fd);
