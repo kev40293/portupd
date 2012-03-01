@@ -1,0 +1,26 @@
+#!/sbin/runscript
+
+description="Portage Tree Sync Daemon"
+
+start() {
+   ebegin "Starting portupd"
+   start-stop-daemon --start --quiet --pidfile /var/run/portupd.pid \
+      --exec /usr/sbin/portupd
+   local _retval=$?
+   eend "${_retval}"
+   if [ "x${_retval}" = 'x0' ]; then
+      einfo "Started"
+   fi
+   return "${_retval}"
+}
+
+stop() {
+   if yesno "${IN_BACKGROUND}"; then
+      mark_service_inactive "${SVCNAME}"
+      return 0
+   fi
+
+   ebegin "Stopping portupd"
+   start-stop-daemon --stop --quiet --pidfile /var/run/portupd.pid
+   eend $?
+}
