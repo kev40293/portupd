@@ -1,4 +1,4 @@
-portup is a python extension for portage
+portupd is a python extension for portage
 it is a daemon that at a given interval will
 synchronize the remote portage tree with the
 local one. Future plans are to extend it to
