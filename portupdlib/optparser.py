@@ -21,19 +21,43 @@
 import argparse;
 import config;
 
+#update this to be easier to add functionality and such
 def parse_arguments():
    parser = argparse.ArgumentParser(prog="portupd", description="A daemon for automatic background synchronization of the portage tree");
-   parser.add_argument('--no-daemon', help="Don't fork process to background",
-         action='store_const', const=True, default=argparse.SUPPRESS);
-   parser.add_argument('--time', "-t", action='store', help="Time in hours \
-         between syncs", type=float, default=argparse.SUPPRESS);
-   parser.add_argument('--wait', '-w', action='store', help="Time to wait after\
-         failed sync", type=float, default=argparse.SUPPRESS);
-   parser.add_argument('--config', type=file, action='store',
-         default=None,
-         help="specify config file to use")
-   parser.add_argument("--pid-file", type=str, action='store',
-         help="Specify PID file", default=argparse.SUPPRESS)
+   options = {"--no-daemon" : {
+                        "help" : "Don't run as daemon",
+                        "action" : "store_const",
+                        "const" : True,
+                        "default" : argparse.SUPPRESS},
+              "--time" : {
+                        "shortopt" : "-t",
+                        "help" : "Time in hours between syncs.",
+                        "type" : float,
+                        "action" : "store",
+                        "default" : argparse.SUPPRESS},
+              "--wait" : {
+                        "shortopt" : "-w",
+                        "help" : "Time in minutes to wait after failed sync.",
+                        "type" : float,
+                        "action" : "store",
+                        "default" : argparse.SUPPRESS},
+              "--config" : {
+                        "type": file,
+                        "action" : "store",
+                        "default" : argparse.SUPPRESS,
+                        "help" : "Configuration file to use"},
+              "--pid-file" : {
+                        "type" : str,
+                        "help" : "pid file for daemon",
+                        "default" : argparse.SUPPRESS,
+                        "action" : "store"}
+              }
+   for opts, kwargs in options.items():
+      shortopt = kwargs.pop("shortopt",None)
+      args = [opts]
+      if shortopt is not None:
+         args.append(shortopt)
+      parser.add_argument(*args, **kwargs)
 
    cmdargs = vars(parser.parse_args())
    configobj = config.Config(cmdargs['config'])

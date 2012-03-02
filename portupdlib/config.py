@@ -19,22 +19,7 @@
 # USA.
 
 import ConfigParser
-
-TYPES={
-      'boolean' : ['no_daemon', 'deep'],
-      'floats'  : ['time', 'wait']
-      }
-DEFAULTS={
-      'portupd' : {
-         'time' : 24,
-         'wait' : 5,
-         'pkglist' : 'world',
-         'no_daemon' : False,
-         'deep' : True},
-      'other' : {
-         'config' : None,
-         'pid_file' : '/var/run/portupd.pid'}
-      }
+import option
 
 class Config(object):
    OPTIONS = None
@@ -42,29 +27,29 @@ class Config(object):
       self.load(filehandle);
 
    def load(self, FILE):
-      self.OPTIONS = DEFAULTS
+      self.OPTIONS = {}
       parser = ConfigParser.ConfigParser()
       try:
          parser.readfp(FILE)
-         for section in DEFAULTS.keys():
-            if parser.has_section(section):
-               for op in DEFAULTS[section].keys():
-                  if parser.has_option(section, op):
-                     if op in TYPES['boolean']:
-                        self.OPTIONS[section][op] = parser.getboolean(section,op)
-                     elif op in TYPES['floats']:
-                        self.OPTIONS[section][op] = parser.getfloat(section,op)
-                     else:
-                        self.OPTIONS[section][op] = parser.get(section,op)
-                  else:
-                     self.OPTIONS[section][op] = DEFAULTS[section][op]
+         for section, confopts in option.APP_OPTIONS.items():
+            for confop in confopts:
+               if parser.has_option(section, confop.get_name()):
+                  try:
+                      var = confop.get_name()
+                      if confop.get_type() is bool:
+                         self.OPTIONS[var] = parser.getboolean(section,var)
+                      elif confop.get_type() is float:
+                         self.OPTIONS[var] = parser.getfloat(section,var)
+                      else:
+                         self.OPTIONS[var] = parser.get(section,var);
+                  except ValueError as te:
+                     print confop.get_name()
+                     self.OPTIONS[confop.get_name()] = confop.get_default()
+               else:
+                  self.OPTIONS[confop.get_name()] = confop.get_default()
       except IOError as e:
           print "Config file not found, using defaults"
 
    def getOpts(self):
-      configvals = {}
-      for section in self.OPTIONS.keys():
-         for param in self.OPTIONS[section].keys():
-            configvals[param] = self.OPTIONS[section][param]
-      return configvals
+      return self.OPTIONS
 
