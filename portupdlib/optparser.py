@@ -1,4 +1,22 @@
 #!/usr/bin/python
+#
+#       portupd optparser - command line options parser
+#       Copyright (C) 2012 Kevin Brandstatter
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+# USA.
 
 import argparse;
 import config;
@@ -12,15 +30,10 @@ def parse_arguments():
    parser.add_argument('--wait', '-w', action='store', help="Time to wait after\
          failed sync", type=float, default=argparse.SUPPRESS);
    parser.add_argument('--config', type=file, action='store',
-         default='/etc/portup.conf',
+         default=None,
          help="specify config file to use")
    parser.add_argument("--pid-file", type=str, action='store',
          help="Specify PID file", default=argparse.SUPPRESS)
-   bool_opts = ['deep','no_daemon']
-   float_opts = ['time', 'wait']
-   default_opts = {'time': 24.0, 'wait': 5.0,
-         'deep': True, 'pkglist': 'world', 'no_daemon': False,
-         'pid_file': '/var/run/portupd.pid'}
 
    cmdargs = vars(parser.parse_args())
    configobj = config.Config(cmdargs['config'])

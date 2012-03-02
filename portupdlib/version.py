@@ -1,4 +1,5 @@
 #!/usr/bin/python
+#
 #       portupd version - version number
 #       Copyright (C) 2012 kjbrandstatter@gmail.com
 #

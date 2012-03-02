@@ -1,12 +1,11 @@
 #!/usr/bin/env python
 
 import portupdlib.optparser
-import portupdlib.version
+from portupdlib.version import APP_VERSION, APP_NAME
 import signal, sys
 from portupdlib.portupd import portupd
 
 ENVIRONMENT = portupdlib.optparser.parse_arguments()
-print ENVIRONMENT
 PORTUPD = portupd(ENVIRONMENT)
 
 def handler(signum, frame):
@@ -17,4 +16,5 @@ def handler(signum, frame):
 signal.signal(signal.SIGTERM, handler)
 signal.signal(signal.SIGINT, handler)
 
+print "Starting portupd v%s" % APP_VERSION
 PORTUPD.main_loop()
