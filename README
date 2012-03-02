@@ -1,0 +1,18 @@
+Read INSTALL for installation information
+
+start daemon with
+
+/etc/init.d/portupd start
+
+stop with
+
+/etc/init.d/portupd stop
+
+restart with
+
+/etc/init.d/portupd stop
+
+If you want to run this service when your computer starts
+add it to the default runlevel with
+
+rc-update add portupd default

@@ -1,0 +1,11 @@
+This package is for use with Gentoo's Portage package management system.
+It will not work with any other package manager.
+
+To install properly:
+
+./setup.py install --record=install-files.txt
+
+The record option is not required, however if included
+package can be uninstalled with
+
+./setup.py uninstall --manifest=install-files.txt
