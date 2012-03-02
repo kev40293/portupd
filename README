@@ -1,3 +1,10 @@
+portup is a python extension for portage
+it is a daemon that at a given interval will
+synchronize the remote portage tree with the
+local one. Future plans are to extend it to
+notify the user in the case of updates.
+
+
 Read INSTALL for installation information
 
 start daemon with
