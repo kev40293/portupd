@@ -9,6 +9,7 @@ from distutils.command.build import build
 from distutils.dep_util import newer
 from distutils.log import warn, info, error
 from distutils.errors import DistutilsFileError
+from portupdlib.version import APP_VERSION, APP_NAME
 
 class Uninstall(Command):
   description = "Attempt an uninstall from an install --record file"
@@ -68,7 +69,7 @@ str(e))
         else:
           info("skipping empty directory %s" % repr(dir))
 
-setup(name='portupd', version='0.01',
+setup(name=APP_NAME, version=APP_VERSION,
       description='Portage tree auto sync daemon',
       author='Kevin Brandstatter',
       author_email='Kevin Brandstatter',
