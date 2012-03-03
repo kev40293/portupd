@@ -42,9 +42,9 @@ def parse_arguments():
                         "action" : "store",
                         "default" : argparse.SUPPRESS},
               "--config" : {
-                        "type": file,
+                        "type": str,
                         "action" : "store",
-                        "default" : argparse.SUPPRESS,
+                        "default" : '/etc/portup.conf',
                         "help" : "Configuration file to use"},
               "--pid-file" : {
                         "type" : str,

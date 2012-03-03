@@ -30,6 +30,7 @@ class portupd(object):
       self.conf = environment
       pidfile = open(self.conf.get('pid_file'), 'w')
 
+      print self.conf.get('no_daemon')
       if (self.conf.get('no_daemon') == False):
          print "forking to background"
          if (os.fork() == 0):

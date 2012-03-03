@@ -35,7 +35,7 @@ class Option(object):
 
 APP_OPTIONS = {
       'global': [
-         Option('config', default=None, type=file)],
+         Option('config', default='/etc/conf', type=str)],
       'sync' : [
          Option('time', default=25, type=float),
          Option('wait', default=5, type=float),

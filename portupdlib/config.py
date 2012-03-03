@@ -23,14 +23,20 @@ import option
 
 class Config(object):
    OPTIONS = None
+   FILE=None
    def __init__(self, filehandle):
-      self.load(filehandle);
+      try:
+        self.FILE=open(filehandle, "r")
+        self.load()
+      except IOError as err:
+         print "Config File not found. Using Defaults."
+         self.loadDefaults()
 
-   def load(self, FILE):
+   def load(self):
       self.OPTIONS = {}
       parser = ConfigParser.ConfigParser()
       try:
-         parser.readfp(FILE)
+         parser.readfp(self.FILE)
          for section, confopts in option.APP_OPTIONS.items():
             for confop in confopts:
                if parser.has_option(section, confop.get_name()):
@@ -47,8 +53,14 @@ class Config(object):
                      self.OPTIONS[confop.get_name()] = confop.get_default()
                else:
                   self.OPTIONS[confop.get_name()] = confop.get_default()
-      except IOError as e:
-          print "Config file not found, using defaults"
+      except ConfigParser.ParsingError as e:
+         print "Error parsing configuration file. Using defaults"
+         self.loadDefaults()
+
+   def loadDefaults(self):
+      for section, confopts in option.APP_OPTIONS.items():
+         for confop in confopts:
+            self.OPTIONS[confop.get_name()] = confop.get_default()
 
    def getOpts(self):
       return self.OPTIONS

@@ -73,9 +73,9 @@ setup(name='portupd', version='0.01',
       author='Kevin Brandstatter',
       author_email='Kevin Brandstatter',
       packages=['portupdlib'], license="GPLv3",
-      scripts=['portupd'],
       data_files=[('/etc', ['portup.conf']),
-         ('/etc/init.d', ['scripts/portupd'])],
+         ('/etc/init.d', ['scripts/portupd']),
+         ('/usr/sbin', ['portupd'])],
       requires=['portage', '_emerge'],
       cmdclass = {'uninstall': Uninstall}
       )

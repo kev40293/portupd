@@ -2,8 +2,12 @@
 
 import portupdlib.optparser
 from portupdlib.version import APP_VERSION, APP_NAME
-import signal, sys
+import signal, sys, os
 from portupdlib.portupd import portupd
+
+if (os.getuid() != 0):
+      print "This program must be run as root"
+      sys.exit(1)
 
 ENVIRONMENT = portupdlib.optparser.parse_arguments()
 PORTUPD = portupd(ENVIRONMENT)
