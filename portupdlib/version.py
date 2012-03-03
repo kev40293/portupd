@@ -18,4 +18,4 @@
 #  USA
 
 APP_NAME = 'portupd'
-APP_VERSION = '0.01'
+APP_VERSION = '0.0.2'
