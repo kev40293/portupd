@@ -30,7 +30,6 @@ class portupd(object):
       self.conf = environment
       pidfile = open(self.conf.get('pid_file'), 'w')
 
-      print self.conf.get('no_daemon')
       if (self.conf.get('no_daemon') == False):
          print "forking to background"
          if (os.fork() == 0):
@@ -56,11 +55,9 @@ class portupd(object):
          last_sync = 0
          period = self.conf.get('time') * 60 * 60
          delay = self.conf.get('wait') * 60
-         time.sleep(delay)
          while 1:
+            time.sleep(delay)
             cur_time = time.time()
             if cur_time - last_sync > delay:
                if _emerge.main.emerge_main(['--sync']) == 0:
                   last_sync = cur_time
-               else:
-                  time.sleep(delay)
